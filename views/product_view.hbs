@@ -1,0 +1,149 @@
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>CRUD Node.js and Mysql</title>
+    <link href="/assets/css/bootstrap.css" rel="stylesheet" type="text/css"/>
+    <link href="css/style.css" rel="stylesheet" type="text/css"/>
+  </head>
+  <body>
+    <div class="container">
+      <h2>Product List</h2>
+      <button class="btn btn-success" data-toggle="modal" data-target="#myModalAdd">Add New</button>
+      <table class="table table-striped" id="mytable" border="2px">
+        <thead class="table-primary">
+          <tr>
+            <th>Product ID</th>
+            <th>Product Name</th>
+            <th>Price</th>
+            <th>Email</th>
+            <th>Images List</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{#each results}}
+          <tr>
+            <td>{{ product_id }}</td>
+            <td>{{ product_name }}</td>
+            <td>{{ product_price }}</td>
+            <td>{{ product_email }}</td>
+            <td><center><img src="./upload/{{product_image}}" height="50px" width="50px"></center></td>
+            <td>
+              <a href="javascript:void(0);" class="btn btn-sm btn-info edit" data-id="{{ product_id }}" data-product_name="{{ product_name }}" data-product_price="{{ product_price }}" data-product_email="{{ product_email }}" data-product-image="{{ product_image }}" >Edit</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+              <a href="javascript:void(0);" class="btn btn-sm btn-danger delete" data-id="{{ product_id }}">Delete</a>
+            </td>
+          </tr>
+          {{/each}}
+        </tbody>
+      </table>
+    </div>
+    <!-- Add New Product Modal-->
+    {{# if success }}
+        <section class="success">
+            <h2>Successful Validation!</h2>
+        </section>
+    {{ else }}
+        {{# if errors }}
+            <section class="errors">
+                <ul>
+                    {{# each errors }}
+                        <li>{{ this.msg }}</li>
+                    {{/each}}
+                </ul>
+            </section>
+        {{/if}}
+    <form action="/save" method="post" enctype="multipart/form-data">
+      <div class="modal fade" id="myModalAdd" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="exampleModalLabel">Add New Product</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              <div class="form-group">
+                <input type="text" name="product_name" class="form-control product_name" placeholder="Product Name" required><span id="errortext"></span>
+              </div>
+              <div class="form-group">
+                <input type="text" name="product_price" class="form-control price" placeholder="Price" required><span id="errmsg"></span>
+              </div>
+              <div class="form-group">
+                <input type="email" name="product_email" class="form-control" placeholder="Enter Your Email" required onkeypress="validateEmail(this);"><span id="erroremail"></span>
+              </div>
+              <div class="form-group">
+                <input type="file" onchange="readURL(this);"  class="add_image" name="product_image" class="form-control" placeholder="image" multiple required>
+                 <img id="profile-img-tag1" src="#" alt="your image" height="100" />
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+              <button type="submit" class="btn btn-primary">Save</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </form>
+    {{/if}}
+    <!-- Edit Form -->
+    <form action="/update" method="post" enctype="multipart/form-data">
+      <div class="modal fade" id="EditModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="exampleModalLabel">Edit Product</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              <div class="form-group">
+                <input type="text" name="product_name" class="form-control product_name" placeholder="Product Name">
+              </div>
+              <div class="form-group">
+                <input type="text" name="product_price" class="form-control price" placeholder="Price">
+              </div>
+              <div class="form-group">
+                <input type="email" name="product_email" class="form-control product_email" placeholder="Enter Email">
+              </div>
+              <div class="form-group">
+                <input type="file" name="product_image" class="form-control product_image" placeholder="image">
+                <img src="#" id="profile-img-tag" width="200px"/>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <input type="hidden" name="id" class="product_id">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+              <button type="submit" class="btn btn-primary">Update</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </form>
+    <!-- Delete Product Modal-->
+    <form id="add-row-form" action="/delete" method="post">
+      <div class="modal fade" id="DeleteModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="myModalLabel">Delete Product</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            </div>
+            <div class="modal-body">
+              <strong>Are You Sure To Delete This Data?</strong>
+            </div>
+            <div class="modal-footer">
+              <input type="hidden" name="product_id" class="form-control product_id2" required>
+              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+              <button type="submit" class="btn btn-success">Delete</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </form>
+    <script src="/assets/js/jquery-3.3.1.js"></script>
+    <script src="/assets/js/bootstrap.js"></script>
+    <script type="text/javascript" src="js/script.js"></script>
+  </body>
+</html>
